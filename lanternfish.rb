@@ -1,24 +1,25 @@
-class Fish
-  attr_reader :age
-  
-  def initialize(age)
-    @age = age
+class Population
+  def initialize(ages)
+    @generations = Array.new(9, 0)
+    ages.each {|age| @generations[age] += 1 }
+  end
+
+  def age_one_day
+    zeroes = @generations[0]
+    
+    @generations[0] = @generations[1]
+    @generations[1] = @generations[2]
+    @generations[2] = @generations[3]
+    @generations[3] = @generations[4]
+    @generations[4] = @generations[5]
+    @generations[5] = @generations[6]
+    @generations[6] = @generations[7] + zeroes
+    @generations[7] = @generations[8]
+    @generations[8] = zeroes
   end
   
-  # At the end of anotheer day, update my age
-  # Return newly spawned fish, if any
-  def live_one_day
-    if @age == 0
-      @age = 6
-      Fish.new(8)
-    else
-      @age -= 1
-      nil
-    end
-  end
-  
-  def inspect
-    @age
+  def size
+    @generations.sum
   end
 end
 
@@ -29,26 +30,15 @@ end
 if __FILE__ == $0
   ages = get_ages("lanternfish.txt")
   
-  puts "Initial State: #{ages}"
-  
-  fishies = ages.map {|age| Fish.new(age) }
-  
+  population = Population.new(ages)
+
+  MAX_DAYS = 256
   days = 0
   
-  while days < 256
-    babies = []
-    fishies.each do |fish|
-      offspring = fish.live_one_day
-      if offspring
-        babies.push(offspring)
-      end
-    end
-    fishies = fishies.concat(babies)
-  
+  while days < MAX_DAYS
+    population.age_one_day
     days += 1
-    
-    # puts "After #{days} days: #{fishies}"
   end
   
-  puts "#{fishies.length} fish exist"
+  puts "#{population.size} fish exist after #{MAX_DAYS} days"
 end
