@@ -33,25 +33,20 @@ class Line
     not @first_illegal_char.nil?
   end
 
+  def pairs
+    { "(" => ")", "[" => "]", "<" => ">", "{" => "}" }
+  end
+
   def is_opener? c
-    ["(", "[", "<", "{"].include? c
+    self.pairs.keys.include? c
   end
 
   def is_closer? c
-    [")", "]", ">", "}"].include? c
+    self.pairs.values.include? c
   end
 
   def closer_for(opener)
-    case opener
-    when "("
-      ")"
-    when "["
-      "]"
-    when "<"
-      ">"
-    when "{"
-      "}"
-    end
+    self.pairs[opener]
   end
 
   def is_legal?(opener, closer)
@@ -62,18 +57,7 @@ class Line
   end
 
   def syntax_score
-    case @first_illegal_char
-    when ")"
-      3
-    when "]"
-      57
-    when "}"
-      1197
-    when ">"
-      25137
-    else
-      0
-    end
+    {")" => 3, "]" => 57, "}" => 1197, ">" => 25137 }[@first_illegal_char]
   end
 
   def completion_string
@@ -99,11 +83,11 @@ class Line
 
   def autocomplete_score
     unless @autocomplete_score
-      scores = {")": 1, "]": 2, "}": 3, ">": 4}
+      scores = {")" =>1, "]" => 2, "}" => 3, ">" => 4}
       @autocomplete_score = 0
       self.completion_string.each_char do |c|
         @autocomplete_score *= 5
-        @autocomplete_score += scores[c.to_sym]
+        @autocomplete_score += scores[c]
       end
     end
     @autocomplete_score
